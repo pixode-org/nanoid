@@ -4,43 +4,40 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.kotest.matchers.string.shouldMatch
 import java.math.BigInteger
 
 class NanoIdExtensionsTest : FunSpec({
     context("fromBytes") {
         test("converts all-zero bytes to a NanoId of all-A characters") {
             val result = NanoId.fromBytes("abc", ByteArray(14))
-            result.nanoId shouldBe "AAAAAAAAAAAAAAAAAA"
+            result.nanoId shouldBe "000000000000000000"
         }
 
         test("zero-pads small values with A characters on the left") {
-            // BigInteger 1 encodes to 'B' (index 1), padded to 18 digits: 17×'A' + 'B'
             val result = NanoId.fromBytes("abc", byteArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1))
-            result.nanoId shouldBe "AAAAAAAAAAAAAAAAAB"
+            result.nanoId shouldBe "000000000000000001"
         }
 
         test("encodes a two-digit base-62 value correctly") {
-            // BigInteger 62 = 1×62 + 0, encodes to 16×'A' + 'B' + 'A' = "AAAAAAAAAAAAAAAABA"
             val result = NanoId.fromBytes("abc", byteArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 62))
-            result.nanoId shouldBe "AAAAAAAAAAAAAAAABA"
+            result.nanoId shouldBe "000000000000000010"
         }
 
         test("encodes a 18-digit base-62 value correctly") {
             val bytes: ByteArray = BigInteger.valueOf(62).pow(19).subtract(BigInteger.ONE).toByteArray()
             val result = NanoId.fromBytes("abc", bytes)
-            result.nanoId shouldBe "999999999999999999"
+            result.nanoId shouldBe "ZZZZZZZZZZZZZZZZZZ"
         }
 
         test("ignores high-order bits beyond 18 base-62 digits for large values") {
             val bytes: ByteArray = BigInteger.valueOf(62).pow(19).add(BigInteger.ONE).toByteArray()
             val result = NanoId.fromBytes("abc", bytes)
-            result.nanoId shouldBe "AAAAAAAAAAAAAAAAAB"
+            result.nanoId shouldBe "000000000000000001"
         }
 
         test("accepts a byte array longer than 14 bytes") {
             val result = NanoId.fromBytes("abc", ByteArray(20))
-            result.nanoId shouldBe "AAAAAAAAAAAAAAAAAA"
+            result.nanoId shouldBe "000000000000000000"
         }
 
         test("returns a NanoId with the given prefix") {

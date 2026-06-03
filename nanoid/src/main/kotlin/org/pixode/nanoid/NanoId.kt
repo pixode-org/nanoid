@@ -18,7 +18,7 @@ value class NanoId(val value: String) {
     override fun toString(): String = value
 
     companion object {
-        internal const val ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+        internal const val ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
         private val random = SecureRandom()
         private val regex = Regex("^[a-z][a-z0-9]*_[a-zA-Z0-9]{18}$")
 
