@@ -1,6 +1,7 @@
 package org.pixode.nanoid
 
 import java.math.BigInteger
+import java.security.MessageDigest
 
 fun NanoId.Companion.fromBytes(prefix: String, bytes: ByteArray): NanoId {
     require(bytes.size >= 15) { "The byte array must be at least 15 bytes long" }
@@ -19,4 +20,10 @@ fun NanoId.Companion.fromBytes(prefix: String, bytes: ByteArray): NanoId {
 
     // Reverse because remainders are calculated from least significant to most significant digit
     return NanoId(prefix, result.reverse().toString())
+}
+
+fun NanoId.Companion.fromHashedString(prefix: String, input: String): NanoId {
+    val digest: MessageDigest = MessageDigest.getInstance("SHA-256")
+    val hashBytes: ByteArray = digest.digest(input.toByteArray(Charsets.UTF_8))
+    return fromBytes(prefix, hashBytes)
 }

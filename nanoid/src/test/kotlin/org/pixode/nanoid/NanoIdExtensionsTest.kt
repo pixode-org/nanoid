@@ -5,6 +5,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import java.math.BigInteger
+import java.security.MessageDigest
 
 class NanoIdExtensionsTest : FunSpec({
     context("fromBytes") {
@@ -18,8 +19,9 @@ class NanoIdExtensionsTest : FunSpec({
             61.toByte() to "00000000000000000Z",
             62.toByte() to "000000000000000010",
             123.toByte() to "00000000000000001Z",
+            255.toByte() to "000000000000000047",
         ).forEach { (lastByte: Byte, expected: String) ->
-            test("converts 00..$lastByte to $expected") {
+            test("converts [0, 0, .., ${lastByte.toUByte()}] to $expected") {
                 val result = NanoId.fromBytes("abc", byteArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, lastByte))
                 result.nanoId shouldBe expected
             }
@@ -69,6 +71,43 @@ class NanoIdExtensionsTest : FunSpec({
             test(name) {
                 shouldThrow<IllegalArgumentException>(execute)
             }
+        }
+    }
+
+    context("fromHashedString") {
+        test("returns a NanoId with the given prefix") {
+            NanoId.fromHashedString("abc", "hello").prefix shouldBe "abc"
+        }
+
+        mapOf(
+            "hello" to "6s43JnJRiBylEk5Ysk",
+            "" to "yGGUPNsuJweEPhlXi5",
+            "café" to "2q2LLltg9KCTR9NPKS",
+        ).forEach { (input: String, output: String) ->
+            test("turns \"$input\" into \"$output\"") {
+                NanoId.fromHashedString("abc", input).toString() shouldBe "abc_$output"
+            }
+        }
+
+        test("is equivalent to fromBytes with the SHA-256 hash of the UTF-8 encoded input") {
+            val hashBytes = MessageDigest.getInstance("SHA-256").digest("hello".toByteArray(Charsets.UTF_8))
+            NanoId.fromHashedString("abc", "hello") shouldBe NanoId.fromBytes("abc", hashBytes)
+        }
+
+        test("is deterministic for the same input string") {
+            NanoId.fromHashedString("abc", "hello") shouldBe NanoId.fromHashedString("abc", "hello")
+        }
+
+        test("produces different results for different input strings") {
+            NanoId.fromHashedString("abc", "hello") shouldNotBe NanoId.fromHashedString("abc", "world")
+        }
+
+        test("distinguishes inputs that differ only after UTF-8 encoding") {
+            NanoId.fromHashedString("abc", "café") shouldNotBe NanoId.fromHashedString("abc", "cafe")
+        }
+
+        test("throws when the prefix is invalid") {
+            shouldThrow<IllegalArgumentException> { NanoId.fromHashedString("1invalid", "hello") }
         }
     }
 })

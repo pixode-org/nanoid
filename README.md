@@ -1,5 +1,7 @@
 # NanoId
 
+<a href="https://central.sonatype.com/artifact/org.pixode/nanoid">![Maven Central Version](https://img.shields.io/maven-central/v/org.pixode/nanoid)</a>
+
 A Kotlin implementation of NanoId — a tiny, secure, URL-friendly unique string ID generator with typed prefixes.
 
 ## ID format
