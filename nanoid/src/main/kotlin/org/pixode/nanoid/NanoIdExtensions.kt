@@ -3,7 +3,7 @@ package org.pixode.nanoid
 import java.math.BigInteger
 
 fun NanoId.Companion.fromBytes(prefix: String, bytes: ByteArray): NanoId {
-    require(bytes.size >= 14) { "The byte array must be at least 14 bytes long" }
+    require(bytes.size >= 15) { "The byte array must be at least 15 bytes long" }
 
     val base = BigInteger.valueOf(ALPHABET.length.toLong())
     val result = StringBuilder(18)
