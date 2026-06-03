@@ -21,7 +21,7 @@ Add the dependency to your `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("org.pixode:nanoid:1.0.0")
+    implementation("org.pixode:nanoid:VERSION")
 }
 ```
 
@@ -30,14 +30,14 @@ dependencies {
 ### Generate a random ID
 
 ```kotlin
-val id = NanoId.randomId("user")
+val id = NanoId.random("user")
 // e.g. user_a1B2c3D4e5F6g7H8i9
 ```
 
 ### Parse from a string
 
 ```kotlin
-val id = NanoId.fromString("user_a1B2c3D4e5F6g7H8i9")
+val id = NanoId("user_a1B2c3D4e5F6g7H8i9")
 println(id.prefix)  // user
 println(id.nanoId)  // a1B2c3D4e5F6g7H8i9
 ```

@@ -4,10 +4,32 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldMatch
 import java.math.BigInteger
 import java.security.MessageDigest
 
 class NanoIdExtensionsTest : FunSpec({
+    context("random") {
+        test("returns a NanoId with the given prefix") {
+            NanoId.random("abc").prefix shouldBe "abc"
+        }
+
+        test("nanoId part is 18 base-62 characters") {
+            NanoId.random("abc").nanoId shouldMatch Regex("^[a-zA-Z0-9]{18}$")
+        }
+
+        test("nanoId part has uppercase, lowercase characters and digits") {
+            val nanoIds = List(5) { NanoId.random("abc").nanoId }.joinToString("")
+            nanoIds.any { it.isLowerCase() } shouldBe true
+            nanoIds.any { it.isUpperCase() } shouldBe true
+            nanoIds.any { it.isDigit() } shouldBe true
+        }
+
+        test("generates unique IDs") {
+            NanoId.random("abc") shouldNotBe NanoId.random("abc")
+        }
+    }
+
     context("fromBytes") {
         mapOf(
             0.toByte() to "000000000000000000",

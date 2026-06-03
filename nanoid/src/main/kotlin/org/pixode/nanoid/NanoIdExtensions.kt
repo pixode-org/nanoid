@@ -2,6 +2,16 @@ package org.pixode.nanoid
 
 import java.math.BigInteger
 import java.security.MessageDigest
+import java.security.SecureRandom
+
+private val random = SecureRandom()
+fun NanoId.Companion.random(prefix: String) = NanoId(
+    buildString(prefix.length + 19) {
+        append(prefix)
+        append('_')
+        repeat(18) { append(ALPHABET[random.nextInt(ALPHABET.length)]) }
+    },
+)
 
 fun NanoId.Companion.fromBytes(prefix: String, bytes: ByteArray): NanoId {
     require(bytes.size >= 15) { "The byte array must be at least 15 bytes long" }

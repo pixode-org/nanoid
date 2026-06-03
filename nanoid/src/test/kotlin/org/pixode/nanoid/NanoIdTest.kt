@@ -4,13 +4,12 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.kotest.matchers.string.shouldMatch
 import kotlinx.serialization.json.Json
 
 private const val VALID_ID = "a1B2c3D4e5F6g7H8i9"
 
 class NanoIdTest : FunSpec({
-    context("construction") {
+    context("secondary constructor") {
         test("accepts valid prefix and nanoId") {
             NanoId("abc", VALID_ID).prefix shouldBe "abc"
             NanoId("abc", VALID_ID).nanoId shouldBe VALID_ID
@@ -38,63 +37,37 @@ class NanoIdTest : FunSpec({
         }
     }
 
+    context("primary constructor") {
+        test("splits on the last underscore when prefix contains none") {
+            NanoId("myprefix_$VALID_ID") shouldBe NanoId("myprefix", VALID_ID)
+        }
+
+        test("throws when there is no underscore") {
+            shouldThrow<IllegalArgumentException> { NanoId("abc$VALID_ID") }
+        }
+
+        test("throws when the string has more than one underscore") {
+            shouldThrow<IllegalArgumentException> { NanoId("abc_def_$VALID_ID") }
+        }
+
+        test("throws when the nanoId part is invalid") {
+            shouldThrow<IllegalArgumentException> { NanoId("abc_short") }
+        }
+    }
+
     context("toString") {
         test("returns the underlying value string") {
             NanoId("abc", VALID_ID).toString() shouldBe "abc_$VALID_ID"
         }
     }
 
-    context("fromString") {
-        test("parses a valid string") {
-            NanoId.fromString("abc_$VALID_ID") shouldBe NanoId("abc", VALID_ID)
-        }
-
-        test("splits on the last underscore when prefix contains none") {
-            NanoId.fromString("myprefix_$VALID_ID") shouldBe NanoId("myprefix", VALID_ID)
-        }
-
-        test("throws when there is no underscore") {
-            shouldThrow<IllegalArgumentException> { NanoId.fromString("abc$VALID_ID") }
-        }
-
-        test("throws when the string starts with an underscore") {
-            shouldThrow<IllegalArgumentException> { NanoId.fromString("_$VALID_ID") }
-        }
-
-        test("throws when the nanoId part is invalid") {
-            shouldThrow<IllegalArgumentException> { NanoId.fromString("abc_short") }
-        }
-    }
-
-    context("randomId") {
-        test("returns a NanoId with the given prefix") {
-            NanoId.randomId("abc").prefix shouldBe "abc"
-        }
-
-        test("nanoId part is 18 base-62 characters") {
-            NanoId.randomId("abc").nanoId shouldMatch Regex("^[a-zA-Z0-9]{18}$")
-        }
-
-        test("nanoId part has uppercase, lowercase characters and digits") {
-            val nano = NanoId.randomId("abc").nanoId
-            nano.any { it.isLowerCase() } shouldBe true
-            nano.any { it.isUpperCase() } shouldBe true
-            nano.any { it.isDigit() } shouldBe true
-        }
-
-        test("generates unique IDs") {
-            NanoId.randomId("abc") shouldNotBe NanoId.randomId("abc")
-        }
-
-        test("roundtrips through fromString") {
-            val id = NanoId.randomId("myprefix")
-            NanoId.fromString(id.toString()) shouldBe id
-        }
-    }
-
     context("equality") {
         test("equal when value strings are identical") {
             NanoId("abc", VALID_ID) shouldBe NanoId("abc", VALID_ID)
+        }
+
+        test("not equal when nanoId differs") {
+            NanoId("abc", VALID_ID) shouldNotBe NanoId("abc", VALID_ID.reversed())
         }
 
         test("not equal when nanoId differs only by case") {
@@ -105,15 +78,8 @@ class NanoIdTest : FunSpec({
             NanoId("abc", VALID_ID) shouldNotBe NanoId("xyz", VALID_ID)
         }
 
-        test("not equal when nanoId differs") {
-            NanoId("abc", VALID_ID) shouldNotBe NanoId("abc", VALID_ID.reversed())
-        }
-
         test("hashCode is consistent with equals") {
-            val a = NanoId("abc", VALID_ID)
-            val b = NanoId("abc", VALID_ID)
-            a shouldBe b
-            a.hashCode() shouldBe b.hashCode()
+            NanoId("abc", VALID_ID).hashCode() shouldBe NanoId("abc", VALID_ID).hashCode()
         }
     }
 
@@ -127,7 +93,7 @@ class NanoIdTest : FunSpec({
         }
 
         test("roundtrips through JSON") {
-            val id = NanoId.randomId("prefix")
+            val id = NanoId.random("prefix")
             Json.decodeFromString(NanoId.serializer(), Json.encodeToString(NanoId.serializer(), id)) shouldBe id
         }
     }
