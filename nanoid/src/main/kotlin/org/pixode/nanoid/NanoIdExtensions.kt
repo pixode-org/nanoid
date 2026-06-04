@@ -47,7 +47,7 @@ fun NanoId.Companion.fromBytes(prefix: String, bytes: ByteArray): NanoId {
 }
 
 /**
- * Creates a deterministic [NanoId] with the given [prefix] by deterministically hashing [input].
+ * Creates a deterministic [NanoId] with the given [prefix] by hashing [input].
  *
  * @param prefix The alphanumeric prefix.
  * @param input The string to hash; encoded as UTF-8 before hashing.

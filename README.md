@@ -2,7 +2,7 @@
 
 <a href="https://central.sonatype.com/artifact/org.pixode/nanoid">![Maven Central Version](https://img.shields.io/maven-central/v/org.pixode/nanoid)</a>
 
-A Kotlin implementation of NanoId — a tiny, secure, URL-friendly unique string ID generator with typed prefixes.
+A Kotlin class representing a prefixed nano ID — a tiny, secure, URL-friendly unique string ID generator with typed prefixes.
 
 ## ID format
 
@@ -13,7 +13,7 @@ user_a1B2c3D4e5F6g7H8i9
 ```
 
 - **Prefix**: one or more lowercase alphanumeric characters, starting with a letter (e.g. `user`, `order`, `txn`)
-- **Random part**: exactly 18 characters from `[A-Za-z0-9]`, generated randomly using cryptographically secure random bytes
+- **Identifier**: exactly 18 characters from `[A-Za-z0-9]`, generated randomly using cryptographically secure random bytes
 
 ## Installation
 
@@ -39,10 +39,10 @@ val id = NanoId.random("user")
 ```kotlin
 val id = NanoId("user_a1B2c3D4e5F6g7H8i9")
 println(id.prefix)  // user
-println(id.nanoId)  // a1B2c3D4e5F6g7H8i9
+println(id.identifier)  // a1B2c3D4e5F6g7H8i9
 ```
 
-### Create from a prefix and unique ID
+### Create from a prefix and identifier
 
 ```kotlin
 val id = NanoId("user", "a1B2c3D4e5F6g7H8i9")

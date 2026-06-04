@@ -10,16 +10,14 @@ import java.security.MessageDigest
 
 class NanoIdExtensionsTest : FunSpec({
     context("random") {
-        test("returns a NanoId with the given prefix") {
-            NanoId.random("abc").prefix shouldBe "abc"
+        test("generates a NanoId with the appropriate format") {
+            val nanoId = NanoId.random("abc")
+            nanoId.prefix shouldBe "abc"
+            nanoId.identifier shouldMatch Regex("^[a-zA-Z0-9]{18}$")
         }
 
-        test("nanoId part is 18 base-62 characters") {
-            NanoId.random("abc").nanoId shouldMatch Regex("^[a-zA-Z0-9]{18}$")
-        }
-
-        test("nanoId part has uppercase, lowercase characters and digits") {
-            val nanoIds = List(5) { NanoId.random("abc").nanoId }.joinToString("")
+        test("generates a NanoId with uppercase characters, lowercase characters and digits") {
+            val nanoIds = List(5) { NanoId.random("abc").identifier }.joinToString("")
             nanoIds.any { it.isLowerCase() } shouldBe true
             nanoIds.any { it.isUpperCase() } shouldBe true
             nanoIds.any { it.isDigit() } shouldBe true
@@ -45,7 +43,7 @@ class NanoIdExtensionsTest : FunSpec({
         ).forEach { (lastByte: Byte, expected: String) ->
             test("converts [0, 0, .., ${lastByte.toUByte()}] to $expected") {
                 val result = NanoId.fromBytes("abc", byteArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, lastByte))
-                result.nanoId shouldBe expected
+                result.identifier shouldBe expected
             }
         }
 
@@ -53,21 +51,21 @@ class NanoIdExtensionsTest : FunSpec({
             val bytes: ByteArray = BigInteger.valueOf(62).pow(19).subtract(BigInteger.ONE).toByteArray()
             check(bytes.size == 15)
             val result = NanoId.fromBytes("abc", bytes)
-            result.nanoId shouldBe "ZZZZZZZZZZZZZZZZZZ"
+            result.identifier shouldBe "ZZZZZZZZZZZZZZZZZZ"
         }
 
         test("ignores high-order bits beyond 18 base-62 digits for large values") {
             val bytes: ByteArray = BigInteger.valueOf(62).pow(19).add(BigInteger.ONE).toByteArray()
             check(bytes.size == 15)
             val result = NanoId.fromBytes("abc", bytes)
-            result.nanoId shouldBe "000000000000000001"
+            result.identifier shouldBe "000000000000000001"
         }
 
         test("accepts a byte array longer than 14 bytes") {
             val bytes: ByteArray = BigInteger.valueOf(62).pow(26).plus(BigInteger.ONE).toByteArray()
             check(bytes.size == 20)
             val result = NanoId.fromBytes("abc", bytes)
-            result.nanoId shouldBe "000000000000000001"
+            result.identifier shouldBe "000000000000000001"
         }
 
         test("returns a NanoId with the given prefix") {

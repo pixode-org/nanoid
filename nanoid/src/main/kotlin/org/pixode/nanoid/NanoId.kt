@@ -13,20 +13,20 @@ value class NanoId(
     val value: String,
 ) {
     /**
-     * Creates a [NanoId] from a [prefix] and a pre-generated [nanoId] string, combining them as
-     * `<prefix>_<nanoId>`.
+     * Creates a [NanoId] from a [prefix] and a pre-generated [identifier] string, combining them
+     * as `<prefix>_<identifier>`.
      *
      * @param prefix The alphanumeric prefix.
-     * @param nanoId An 18-character base-62 string.
+     * @param identifier An 18-character base-62 string.
      * @throws IllegalArgumentException if the resulting value does not match the nano ID format.
      */
-    constructor(prefix: String, nanoId: String) : this("${prefix}_$nanoId")
+    constructor(prefix: String, identifier: String) : this("${prefix}_$identifier")
 
     /** The prefix portion of this [NanoId]. */
     val prefix: String get() = value.substring(0, value.lastIndexOf('_'))
 
     /** The 18-character base-62 identifier portion of this [NanoId]. */
-    val nanoId: String get() = value.substring(value.lastIndexOf('_') + 1)
+    val identifier: String get() = value.substring(value.lastIndexOf('_') + 1)
 
     init {
         require(value.matches(regex)) { "The value provided does not match a nano ID format" }
