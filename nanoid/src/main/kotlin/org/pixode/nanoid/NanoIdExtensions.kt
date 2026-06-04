@@ -5,6 +5,13 @@ import java.security.MessageDigest
 import java.security.SecureRandom
 
 private val random = SecureRandom()
+
+/**
+ * Generates a [NanoId] with the given [prefix] and a cryptographically random 18-character
+ * base-62 identifier.
+ *
+ * @param prefix The alphanumeric prefix.
+ */
 fun NanoId.Companion.random(prefix: String) = NanoId(
     buildString(prefix.length + 19) {
         append(prefix)
@@ -13,6 +20,13 @@ fun NanoId.Companion.random(prefix: String) = NanoId(
     },
 )
 
+/**
+ * Creates a deterministic [NanoId] with the given [prefix] derived from a [bytes] array.
+ *
+ * @param prefix The alphanumeric prefix.
+ * @param bytes A byte array of at least 15 bytes.
+ * @throws IllegalArgumentException if [bytes] has fewer than 15 elements.
+ */
 fun NanoId.Companion.fromBytes(prefix: String, bytes: ByteArray): NanoId {
     require(bytes.size >= 15) { "The byte array must be at least 15 bytes long" }
 
@@ -32,6 +46,12 @@ fun NanoId.Companion.fromBytes(prefix: String, bytes: ByteArray): NanoId {
     return NanoId(prefix, result.reverse().toString())
 }
 
+/**
+ * Creates a deterministic [NanoId] with the given [prefix] by deterministically hashing [input].
+ *
+ * @param prefix The alphanumeric prefix.
+ * @param input The string to hash; encoded as UTF-8 before hashing.
+ */
 fun NanoId.Companion.fromHashedString(prefix: String, input: String): NanoId {
     val digest: MessageDigest = MessageDigest.getInstance("SHA-256")
     val hashBytes: ByteArray = digest.digest(input.toByteArray(Charsets.UTF_8))

@@ -42,13 +42,18 @@ println(id.prefix)  // user
 println(id.nanoId)  // a1B2c3D4e5F6g7H8i9
 ```
 
-### Derive an ID from bytes (deterministic)
-
-Converts at least 14 bytes into a base-62 encoded ID. Useful for deriving a stable NanoId from an existing identifier such as a UUID.
+### Create from a prefix and unique ID
 
 ```kotlin
-val bytes: ByteArray = uuid.toByteArray()
-val id = NanoId.fromBytes("order", bytes)
+val id = NanoId("user", "a1B2c3D4e5F6g7H8i9")
+// user_a1B2c3D4e5F6g7H8i9
+```
+
+### Derive an ID by hashing a string
+
+```kotlin
+val id = NanoId.fromHashedString("user", "alice@example.com")
+// user_dBxrYpY3tixdomTAiy
 ```
 
 ### Serialization
@@ -60,7 +65,7 @@ val id = NanoId.fromBytes("order", bytes)
 data class User(val id: NanoId, val name: String)
 
 val json = Json.encodeToString(user)
-// {"id":"user_a1B2c3D4e5F6g7H8i9","name":"Alice"}
+// { "id": "user_a1B2c3D4e5F6g7H8i9", "name": "Alice" }
 ```
 
 ## Requirements
